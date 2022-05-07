@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# Prints all batteries, their percentage remaining and an emoji corresponding
+# to charge status (🔌 for plugged up, 🔋 for discharging on battery, etc.).
+
+TIME=$(acpi | grep Battery\ 0 | awk {'print $5'})
+STATUS=$(acpi | grep Battery\ 0 | awk -F ',' {'print $1'} | awk {'print $3'})
+if [ "$STATUS" = "Charging" ]; then
+MSG="- 充电中，$TIME 充满"
+fi
+case $BUTTON in
+	1) dunstify "🔋 电池模块" "🔋: 放电
+🐌: 停滞电荷
+🔌: 正在充电或连接充电器未充电
+🈵: 已充满
+🔥: 电池电量低!
+- 滚动以更改调整屏幕亮度。
+$MSG" ;;
+	4) xbacklight -inc 10 ;;
+	5) xbacklight -dec 10 ;;
+	3) "$TERMINAL" -e "$EDITOR" "$0" ;;
+esac
+
+# Loop through all attached batteries and format the info
+for battery in /sys/class/power_supply/BAT?*; do
+	# If non-first battery, print a space separator.
+	[ -n "${capacity+x}" ] && printf " "
+	# Sets up the status and capacity
+	case "$(cat "$battery/status" 2>&1)" in
+		"Full") status="🈵" ;;
+		"Discharging") status="🔋" ;;
+		"Charging") status="🔌" ;;
+		"Not charging") status="🔌" ;;
+		"Unknown") status="🐌" ;;
+		*) exit 1 ;;
+	esac
+	capacity="$(cat "$battery/capacity" 2>&1)"
+	# Will make a warn variable if discharging and low
+	[ "$status" = "🔋" ] && [ "$capacity" -le 25 ] && warn="🔥" && cvlc --play-and-exit ./low.power.mp3
+	# Prints the info
+	printf "%s%s%d%%" "$status" "$warn" "$capacity"; unset warn
+done && printf "\\n"

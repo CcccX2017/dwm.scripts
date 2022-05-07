@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# Module showing network traffic. Shows how much data has been received (RX) or
+# transmitted (TX) since the previous time this script ran. So if run every
+# second, gives network traffic per second.
+# 显示网络流量的模块。显示已接收到多少数据 (RX) 或
+# 自上次运行此脚本以来已传输 (TX)。 因此，如果每秒运行一次，则每秒提供网络流量。
+
+ case $BUTTON in
+ 	#1) setsid -f "$TERMINAL" -e bmon ;;
+ 	1) dunstify "🌐 网络流量模块" "\- 查看实时网络流量
+- ⏬: 下行流量
+- ⏫: 上行流量" ;;
+ 	3) "$TERMINAL" -e "$EDITOR" "$0" ;;
+ esac
+
+update() {
+    sum=0
+    for arg; do
+        read -r i < "$arg"
+        sum=$(( sum + i ))
+    done
+    cache=${XDG_CACHE_HOME:-$HOME/.cache}/${1##*/}
+    [ -f "$cache" ] && read -r old < "$cache" || old=0
+    printf %d\\n "$sum" > "$cache"
+    printf %d\\n $(( sum - old ))
+}
+
+RX=$(update /sys/class/net/[ew]*/statistics/rx_bytes)
+TX=$(update /sys/class/net/[ew]*/statistics/tx_bytes)
+
+printf "⏬%4sB ⏫%4sB\\n" $(numfmt --to=iec $RX $TX)

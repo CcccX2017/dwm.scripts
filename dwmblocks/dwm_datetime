@@ -1,0 +1,98 @@
+#!/bin/sh
+
+clock=$(date '+%I')
+minute=$(date '+%M')
+
+case "$clock" in
+	"00") 
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕧"
+        else
+            clock_icon="🕛"
+        fi ;;
+	"01") 
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕜"
+        else
+            clock_icon="🕐"
+        fi ;;
+	"02") 
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕝"
+        else
+            clock_icon="🕑"
+        fi ;;
+	"03") 
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕞"
+        else
+            clock_icon="🕒"
+        fi ;;
+	"04") 
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕟"
+        else
+            clock_icon="🕓"
+        fi ;;
+	"05") 
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕠"
+        else
+            clock_icon="🕔"
+        fi ;;
+	"06") 
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕡"
+        else
+            clock_icon="🕕"
+        fi ;;
+	"07") 
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕢"
+        else
+            clock_icon="🕖"
+        fi ;;
+	"08")
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕣"
+        else
+            clock_icon="🕗"
+        fi ;;
+	"09")
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕤"
+        else
+            clock_icon="🕘"
+        fi ;;
+	"10") 
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕥"
+        else
+            clock_icon="🕙"
+        fi ;;
+	"11") 
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕦"
+        else
+            clock_icon="🕚"
+        fi ;;
+	"12") 
+        if [ "$minute" -ge "30" ];then
+            clock_icon="🕧"
+        else
+            clock_icon="🕛"
+        fi ;;
+esac
+
+case $BUTTON in
+	1) dunstify "月份信息" "$(cal --color=always | sed "s/..7m/<b><span color=\"red\">/;s/..27m/<\/span><\/b>/")" && dunstify "Appointments" "$(calcurse -D ~/.config/calcurse -d3)" ;;
+	2) setsid -f "$TERMINAL" -e calcurse ;;
+	3) dunstify "🗓️ 日期模块" "\- 查看月份信息
+- 左键点击显示日历和未来三天的计划
+- 中键点击打开calcurse(如果已安装)" ;;
+	6) "$TERMINAL" -e "$EDITOR" "$0" ;;
+esac
+
+LOCALTIME=$(date +"🗓️ %m-%d(%a) ${clock_icon} %H:%M:%S")
+#LOCALTIME=$(date +"${clock_icon}:%H:%M")
+printf "${LOCALTIME}"
